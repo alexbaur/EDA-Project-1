@@ -1,0 +1,36 @@
+## Exploratory Data Analysis Project 1
+## Data Cleaning Script
+
+## All code run assuming the active working directory contains
+## the household_power_consumption.txt file and other relevant
+## files from the study.
+
+library(data.table)
+power <- read.csv2("household_power_consumption.txt")
+powerd <- data.table(power)
+
+##Convert Column Classes
+powerdnew <- powerd[, Date:=as.Date(Date, "%d/%m/%Y")]
+powerdnew <- powerd[, Global_active_power:=as.numeric(as.character(Global_active_power))]
+powerdnew <- powerd[, Global_reactive_power:=as.numeric(as.character(Global_reactive_power))]
+powerdnew <- powerd[, Voltage:=as.numeric(as.character(Voltage))]
+powerdnew <- powerd[, Global_intensity:=as.numeric(as.character(Global_intensity))]
+powerdnew <- powerd[, Sub_metering_1:=as.numeric(as.character(Sub_metering_1))]
+powerdnew <- powerd[, Sub_metering_2:=as.numeric(as.character(Sub_metering_2))]
+powerdnew <- powerd[, Sub_metering_3:=as.numeric(as.character(Sub_metering_3))]
+
+
+## Convert Time
+library(chron)
+Zeit <- powerdnew$Time
+Zeitf <- chron(times = Zeit, format = "h:m:s")
+Zeitf <- data.table(Zeitf)
+
+library(dplyr)
+powerf <- cbind(Zeitf, powerdnew)
+powerarrange <- setcolorder(powerf, c("Date", "Zeitf", "Global_active_power", "Global_reactive_power", "Voltage", "Global_intensity", "Sub_metering_1", "Sub_metering_2", "Sub_metering_3", "Time"))
+powertot <- select(powerarrange, Date:Sub_metering_3)
+powertot <- rename(powertot, Time = Zeitf)
+
+##Subset
+powerfinal <- powertot[powertot$Date == "2007-02-01" | powertot$Date == "2007-02-02"]
